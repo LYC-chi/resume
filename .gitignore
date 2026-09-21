@@ -1,0 +1,13 @@
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+.env
+*.local
+
+# 构建产物 / 本地临时文件
+dist/
+_*.html
+
+# 工作区数据（记忆、配置），不进入公开仓库
+.workbuddy/
