@@ -3,6 +3,15 @@
 一个**零依赖、纯前端**的简历编辑器：可视化编辑 → 实时预览 → 一键发布到 GitHub Pages。
 本仓库同时托管「刘晏池 · 个人简历」的在线页面。
 
+## 在线地址
+
+| 页面 | 地址 |
+| --- | --- |
+| 简历（GitHub Pages 首页） | <https://lyc-chi.github.io/resume/> |
+| 在线编辑器 | <https://lyc-chi.github.io/resume/editor/> |
+| 简历 PDF | <https://lyc-chi.github.io/resume/%E5%88%98%E6%99%8F%E6%B1%A0-%E4%B8%AA%E4%BA%BA%E7%AE%80%E5%8E%86.pdf> |
+| 编辑器备用预览（CloudStudio） | <https://7c88850f29a34123b872045dc834e5e8.app.workbuddy.host> |
+
 ---
 
 ## 目录结构
