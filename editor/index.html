@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#1B3A5C" />
+<meta name="description" content="Resume Studio —— 交互式在线简历编辑器：可视化编辑、实时预览、一键发布到 GitHub。" />
+<title>Resume Studio · 在线简历编辑器</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== 顶栏 ===================== -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">RS</span>
+      <span class="brand-text">
+        <strong>Resume Studio</strong>
+        <em>在线简历编辑器</em>
+      </span>
+    </div>
+
+    <div class="tools">
+      <button class="btn ghost" id="btnImport" title="从 JSON 文件导入简历">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        <span>导入</span>
+      </button>
+      <button class="btn ghost" id="btnExportJson" title="导出为 JSON 数据文件">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg>
+        <span>导出 JSON</span>
+      </button>
+      <button class="btn ghost" id="btnExportHtml" title="导出为独立 HTML 文件">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        <span>导出 HTML</span>
+      </button>
+      <button class="btn ghost" id="btnPrint" title="打印或另存为 PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+        <span>打印 / PDF</span>
+      </button>
+      <button class="btn ghost danger" id="btnReset" title="恢复为示例数据">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        <span>重置</span>
+      </button>
+    </div>
+
+    <button class="btn primary" id="btnPublish">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49l-.01-1.7c-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.9 1.57 2.34 1.12 2.91.86.09-.66.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.63 1.03 2.75 0 3.93-2.35 4.79-4.58 5.05.36.32.68.94.68 1.9l-.01 2.81c0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2z"/></svg>
+      <span>一键发布到 GitHub</span>
+    </button>
+
+    <input type="file" id="fileInput" accept=".json,application/json" hidden />
+  </header>
+
+  <!-- ===================== 移动端切换 ===================== -->
+  <div class="mobile-switch" id="mobileSwitch">
+    <button class="seg active" data-view="edit">✎ 编辑</button>
+    <button class="seg" data-view="preview">◉ 预览</button>
+  </div>
+
+  <!-- ===================== 工作区 ===================== -->
+  <main class="workspace">
+    <section class="pane pane-edit">
+      <div class="pane-head">
+        <span>内容编辑</span>
+        <span class="save-hint" id="saveHint">已自动保存</span>
+      </div>
+      <div class="scroll" id="editorPane"></div>
+    </section>
+
+    <section class="pane pane-preview">
+      <div class="pane-head">
+        <span>实时预览</span>
+        <div class="preview-tools">
+          <select class="mini-select" id="zoomSelect" title="预览宽度">
+            <option value="auto" selected>自适应</option>
+            <option value="390">手机 390</option>
+            <option value="768">平板 768</option>
+            <option value="1200">宽屏 1200</option>
+          </select>
+          <button class="mini-btn" id="btnOpenPreview">新窗口打开</button>
+        </div>
+      </div>
+      <div class="preview-stage" id="previewStage">
+        <div class="preview-paper" id="previewPaper">
+          <iframe id="preview" title="简历实时预览"></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ===================== 发布弹窗 ===================== -->
+<div class="modal" id="publishModal" hidden>
+  <div class="modal-mask" data-close></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="pubTitle">
+    <header class="modal-head">
+      <h3 id="pubTitle">
+        <svg class="gh" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49l-.01-1.7c-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.9 1.57 2.34 1.12 2.91.86.09-.66.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.63 1.03 2.75 0 3.93-2.35 4.79-4.58 5.05.36.32.68.94.68 1.9l-.01 2.81c0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2z"/></svg>
+        一键发布到 GitHub
+      </h3>
+      <button class="icon-btn" data-close aria-label="关闭">✕</button>
+    </header>
+
+    <div class="modal-body">
+      <div class="notice">
+        <span>ℹ</span>
+        <div>发布通过 GitHub REST API 完成。<b>仅凭账号邮箱无法调用 API</b>，需要使用该账号下的 Personal Access Token 授权；Token 只保存在你的浏览器本地，不会上传到任何第三方。</div>
+      </div>
+
+      <div class="row2">
+        <label class="fld"><span>GitHub 账号（邮箱）</span><input type="text" id="pubEmail" autocomplete="username" /></label>
+        <label class="fld"><span>用户名 / 组织（owner）</span><input type="text" id="pubOwner" autocomplete="off" /></label>
+      </div>
+      <div class="row2">
+        <label class="fld"><span>仓库名（repo）</span><input type="text" id="pubRepo" autocomplete="off" /></label>
+        <label class="fld"><span>分支（branch）</span><input type="text" id="pubBranch" autocomplete="off" /></label>
+      </div>
+      <div class="row2">
+        <label class="fld"><span>发布路径</span><input type="text" id="pubPath" autocomplete="off" /></label>
+        <label class="fld"><span>提交说明</span><input type="text" id="pubMessage" autocomplete="off" /></label>
+      </div>
+
+      <label class="fld">
+        <span>Personal Access Token
+          <a href="https://github.com/settings/tokens/new?scopes=repo&description=Resume%20Studio" target="_blank" rel="noopener">去创建 →</a>
+        </span>
+        <input type="password" id="pubToken" placeholder="ghp_... 或 github_pat_..." autocomplete="off" spellcheck="false" />
+      </label>
+
+      <details class="help">
+        <summary>Token 怎么获取？（30 秒）</summary>
+        <div class="help-body">
+          <ol>
+            <li>打开 <a href="https://github.com/settings/tokens/new?scopes=repo&description=Resume%20Studio" target="_blank" rel="noopener">github.com/settings/tokens/new</a></li>
+            <li>Note 随便填，例如 <code>Resume Studio</code></li>
+            <li>Expiration 选一个有效期（建议 90 天）</li>
+            <li>勾选 <code>repo</code> 权限（含公开/私有仓库读写）</li>
+            <li>点 <b>Generate token</b>，复制 <code>ghp_</code> 开头的一串字符，粘贴到上方输入框</li>
+          </ol>
+          <p style="margin:8px 0 0">仓库不存在时，发布流程会自动帮你创建（公开仓库才能免费开启 GitHub Pages）。</p>
+        </div>
+      </details>
+
+      <div class="checks" style="margin-top:16px">
+        <label><input type="checkbox" id="pubRemember" /> 在本机浏览器记住 Token（localStorage）</label>
+        <label><input type="checkbox" id="pubPages" checked /> 自动启用 GitHub Pages，并返回在线链接</label>
+        <label><input type="checkbox" id="pubJson" checked /> 同时发布 resume.json 数据文件</label>
+      </div>
+
+      <div class="log" id="pubLog" hidden></div>
+
+      <div class="result" id="pubResult" hidden>
+        <h4>✓ 发布成功</h4>
+        <div class="url-row">
+          <span class="url" id="pubUrl"></span>
+          <button class="mini-btn" id="pubCopy">复制</button>
+          <button class="mini-btn" id="pubOpen">打开</button>
+        </div>
+        <div class="meta" id="pubMeta"></div>
+      </div>
+    </div>
+
+    <footer class="modal-foot">
+      <span class="hint" id="pubHint"></span>
+      <button class="btn ghost" data-close>取消</button>
+      <button class="btn primary" id="pubStart">开始发布</button>
+    </footer>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="seed.js"></script>
+<script src="template.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
